@@ -1,0 +1,47 @@
+body,
+html{
+	padding: 0;
+	margin: 0;
+}
+
+main{
+	overflow: hidden;
+	position: relative;
+	background-color: #e1e1e1;
+}
+
+span{
+	float: left;
+	width: 50px;
+	height: 50px;
+	box-shadow: 0 0 0 1px red;
+	font-size: .85rem;
+}
+
+span.area{
+	background-color: yellow;
+}
+
+span.defense{
+	background-color: gray;
+}
+
+.object{
+	position: absolute;
+	background-color: green;
+	opacity: 0.8
+}
+
+.creature{
+	position: absolute;
+}
+
+.char{
+	background-color: red;
+	transition: all .4s ease;
+}
+
+.monster{
+	background-color: blue;
+	transition: all .4s ease;
+}
