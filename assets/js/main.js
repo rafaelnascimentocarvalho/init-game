@@ -14,7 +14,7 @@ let map = new Map();
 
 draw.setMap( map.constructMap('level1') );
 
-let keyState = {'87': false, '83': false, '65': false, '68': false};
+let keyState = {'16': false, '87': false, '83': false, '65': false, '68': false};
 
 window.addEventListener("keydown", keydown, true);
 window.addEventListener("keyup", keyup, true);

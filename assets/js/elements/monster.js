@@ -4,6 +4,7 @@ let prop   = 50;
 let width  = 1;
 let height = 1;
 
+let attack_cooldown = true;
 let habitat = 4;
 let area   = [];
 let defense = [];
@@ -13,6 +14,9 @@ export default class Monster extends Creature{
 
 	constructor(){
 		super();
+		this.life = 70;
+		this.hurt = this.life;
+		this.alive = true;
 	}
 
 	create(){
@@ -22,6 +26,7 @@ export default class Monster extends Creature{
 
 		var element = document.createElement("div");
 
+		element.id = this.id;
 		element.style.width  = (width * prop) + "px";
 		element.style.height = (height * prop) + "px";
 		element.style.top    = prop * axisY + "px";
@@ -63,13 +68,13 @@ export default class Monster extends Creature{
 		defense.forEach(function(obj){
 
 			let block = document.getElementById("block"+obj);
-				block.className = 'defense';
+				block.className += ' defense';
 		});
 
 		area.forEach(function(obj){
 
 			let block = document.getElementById("block"+obj);
-				block.className = 'area';
+				block.className += ' area';
 		});
 		// ---
 
@@ -79,51 +84,69 @@ export default class Monster extends Creature{
 		return this;
 	}
 
-	existence(collision, char){
+	existence(char, collision){
 
-		let char_block = (char.axisY * prop) + char.axisX;
-		let in_defense = defense.includes(char_block) || area.includes(char_block);
+		if(this.alive){
 
-		// Defense area
-		if(in_defense){
+			let receive = collision['attack'];
 
-			if(this.axisY > char.axisY+1){
-				dir = 'up'
+			if(receive.length && this.alive){
+				collision['attack'] = this.receiveAttack(receive, char);
 			}
 
-			if(this.axisY < char.axisY-1){
-				dir = 'down'
-			}
+			let attack = false;
+			let char_block = char.currentBlock();
+			let in_defense = defense.includes(char_block) || area.includes(char_block);
 
-			if(this.axisX > char.axisX+1){
-				dir = 'left'
-			}
+			// Defense area
+			if(in_defense){
 
-			if(this.axisX < char.axisX-1){
-				dir = 'right'
-			}
+				if(this.axisY > char.axisY){
+					dir = 'up'
+				}
 
-			goto = this.validNextPosition(dir);
+				if(this.axisY < char.axisY){
+					dir = 'down'
+				}
 
-			if( (area.includes(goto) || defense.includes(goto)) && !( collision[dir].includes(goto) ) ){
-				this.moveTo(dir);
+				if(this.axisX > char.axisX){
+					dir = 'left'
+				}
+
+				if(this.axisX < char.axisX){
+					dir = 'right'
+				}
+
+				goto = this.validNextPosition(dir);
+
+				if( (area.includes(goto) || defense.includes(goto)) && !( collision[dir].includes(goto) ) && char_block != goto ){										
+					
+					this.moveTo(dir);
+
+					collision = this.whenAttack(char, collision);
+				}
+				else{				
+					this.backHabitat(collision);
+				}
 			}
-			else{				
-				this.backHabitat(collision);
+			else{
+
+				var dir = direct[Math.floor( Math.random() * direct.length )];
+				var goto = this.validNextPosition(dir);
+
+				if( area.includes(goto) && !( collision[dir].includes(goto) ) ){
+					this.moveTo(dir);
+				}
+				else{
+					this.backHabitat(collision);
+				}
 			}
 		}
 		else{
-
-			var dir = direct[Math.floor( Math.random() * direct.length )];
-			var goto = this.validNextPosition(dir);
-
-			if( area.includes(goto) && !( collision[dir].includes(goto) ) ){
-				this.moveTo(dir);
-			}
-			else{
-				this.backHabitat(collision);
-			}
+			collision['attack'] = [];
 		}
+		
+		return collision;
 	}
 
 	backHabitat(collision){		
@@ -151,5 +174,94 @@ export default class Monster extends Creature{
 		if( (this.area.includes(goto) || this.defense.includes(goto)) && !( collision[dir].includes(goto) ) ){
 			this.moveTo(dir);
 		}
+	}
+
+	whenAttack(char, collision){
+
+		let attack = this.configureAttack(char);
+
+		if(attack.length){
+
+			attack.forEach(function(obj){
+				let block = document.getElementById("block"+obj);
+					block.className += ' attack';
+
+					setTimeout(function(){
+						block.classList.remove('attack');
+					}, 100);
+			});
+
+			collision['attack'] = attack;
+		}	
+
+		return collision;
+	}
+
+	configureAttack(char){
+
+		let find = true;
+		let attacks = [(this.axisY * this.prop) + this.axisX];
+
+		if(this.axisY-1 > char.axisY){
+			find = false;
+		}
+
+		if(this.axisY+1 < char.axisY){
+			find = false;
+		}
+
+		if(this.axisX-1 > char.axisX){
+			find = false;
+		}
+
+		if(this.axisX+1 < char.axisX){
+			find = false;
+		}
+
+		if(find && attack_cooldown){
+
+			let chance = Math.floor(Math.random() * (800 - (800 * 4))) + 800 * 4;
+
+			attacks.push( (char.axisY * prop) + char.axisX );
+			attacks = char.receiveAttack(attacks, this);
+
+			attack_cooldown = false;
+
+			setTimeout(function(){
+				attack_cooldown = true;
+			}, chance);
+
+			return attacks;
+		}
+
+		return find;
+	}	
+
+	respawCreature(){
+
+		this.hurt  = this.life;
+		this.alive = true;
+
+		let health = document.querySelectorAll('#' + this.id + " .life span")[0];
+		let current = health.style.offsetWidth;
+			current = (this.hurt * 100) / this.life;
+
+		health.style.width = current + '%';
+	}
+
+	finishCreature(){
+
+		this.alive = false;
+		var that = this;
+
+		let creature = document.getElementById(this.id);
+			creature.classList.add('dead');
+
+		setTimeout(function(){
+			let creature = document.getElementById(that.id);
+				creature.classList.remove('dead');
+
+			that.respawCreature();
+		}, 5000);
 	}
 }

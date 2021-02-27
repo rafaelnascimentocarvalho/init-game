@@ -21,7 +21,7 @@ export default class Draw{
 		let y = 0;
 		for (let i = 0; i < prop*prop; i++) {
 
-			blocks += '<span id="block'+i+'">'+i+'<br>y:'+y+'<br>x:'+x+'</span>';
+			blocks += '<div id="block'+i+'" class="floor"> '+i+'<br>y:'+y+'<br>x:'+x+' </div>';
 
 			if(y < (prop-1)){
 				y++;	
@@ -53,19 +53,23 @@ export default class Draw{
 		collision['left']  = left;
 		collision['right'] = right;
 		collision['down']  = down;
+		collision['attack'] = [];
 
-		char.create();
+		let creatures = [
+				char.create(),
+				monster.create()
+			];
 
-		monster.create();
-
-		main.appendChild(char.element);
-		main.appendChild(monster.element);
+		creatures.forEach((creature) => {
+			main.appendChild( creature.loadCreature() );
+		});
 	}
 
 	update(keyState){
 
-		char.mechanics({keyState, collision});
+		collision['busy'] = [];
 
-		monster.existence(collision, char);
+		collision = monster.existence(char, collision);
+		collision = char.mechanics(keyState, collision);
 	}
 }
