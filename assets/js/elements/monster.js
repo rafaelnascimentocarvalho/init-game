@@ -4,82 +4,74 @@ let prop   = 50;
 let width  = 1;
 let height = 1;
 
-let attack_cooldown = true;
-let habitat = 4;
-let area   = [];
-let defense = [];
 let direct = ['up', 'down', 'right', 'left'];
 
 export default class Monster extends Creature{
 
 	constructor(){
 		super();
-		this.life = 70;
-		this.hurt = this.life;
 		this.alive = true;
+		this.life = 10;
+		this.habitat = 4;
+		this.hurt = this.life;
+		this.attack_cooldown = true;		
+		this.respaw = 1000;
+		this.respaw_cooldown = this.respaw;
 	}
 
-	create(){
+	create(params){
 
-		let axisY = 5;
-		let axisX = 25;
-
-		var element = document.createElement("div");
-
-		element.id = this.id;
-		element.style.width  = (width * prop) + "px";
-		element.style.height = (height * prop) + "px";
-		element.style.top    = prop * axisY + "px";
-		element.style.left   = prop * axisX + "px";
-		element.className = 'creature monster';
+		this.id   = params.id;
+		let axisY = params.axisY;
+		let axisX = params.axisX;
 
 		this.type    = 'monster';
-		this.element = element;
 		this.respaw  = {axisY: axisY, axisX: axisX};
 		this.axisY   = axisY;
 		this.axisX   = axisX;
 		this.width   = width;
 		this.height  = height;
 
-		// Define respaw area
-		let first = ((this.respaw.axisY - habitat) * prop) + (this.respaw.axisX - habitat);
+		var element = document.createElement("div");
 
-		for (let y = 0; y < habitat * 2; y++) {
-			area = [...area, first];
-			for (let x = 0; x < habitat * 2; x++) {
-				let blockX = first + x;
-				area = [...area, blockX];
+		element.id = this.id;
+		element.style.width  = (this.width * prop) + "px";
+		element.style.height = (this.height * prop) + "px";
+		element.style.top    = prop * this.axisY + "px";
+		element.style.left   = prop * this.axisX + "px";
+		element.className = 'creature monster';			
+		this.element = element;
+
+		if(this.id != 'char'){
+			let area   = [];
+			let defense = [];
+
+			// Define respaw area
+			let first = ((this.respaw.axisY - this.habitat) * this.prop) + (this.respaw.axisX - this.habitat);
+
+			for (let y = 0; y < this.habitat * 2; y++) {
+				area = [...area, first];
+				for (let x = 0; x < this.habitat * 2; x++) {
+					let blockX = first + x;
+					area = [...area, blockX];
+				}
+				first = first + this.prop;
 			}
-			first = first + prop;
-		}
 
-		first = ((this.respaw.axisY - (habitat+3)) * prop) + (this.respaw.axisX - habitat+3);
+			first = ((this.respaw.axisY - (this.habitat + 4)) * this.prop) + (this.respaw.axisX - (this.habitat + 4));
 
-		for (let y = 0; y < habitat * 3; y++) {
-			defense = (first > 0) ? [...defense, first] : [];
-			for (let x = 0; x < habitat * 3; x++) {
-				let blockX = first + x;
-				defense = (blockX > 0) ? [...defense, blockX] : [];
+			for (let y = 0; y < this.habitat * 4; y++) {
+				defense = (first > 0) ? [...defense, first] : [];
+				for (let x = 0; x < this.habitat * 4; x++) {
+					let blockX = first + x;
+					defense = (blockX > 0) ? [...defense, blockX] : [];
+				}
+				first = first + this.prop;
 			}
-			first = first + prop;
+
+			this.area    = area;
+			this.defense = defense;
 		}
-
-		// --- show respaw/defense area
-		defense.forEach(function(obj){
-
-			let block = document.getElementById("block"+obj);
-				block.className += ' defense';
-		});
-
-		area.forEach(function(obj){
-
-			let block = document.getElementById("block"+obj);
-				block.className += ' area';
-		});
-		// ---
-
-		this.area    = area;
-		this.defense = defense;
 
 		return this;
 	}
@@ -88,62 +80,89 @@ export default class Monster extends Creature{
 
 		if(this.alive){
 
-			let receive = collision['attack'];
+			collision['busy'].push(char.currentBlock());
+			collision['busy'].push(this.currentBlock());
 
-			if(receive.length && this.alive){
-				collision['attack'] = this.receiveAttack(receive, char);
-			}
+			let checkcollision = collision['busy'];
+
+			let up    = collision['up'].concat(checkcollision);
+			let down  = collision['down'].concat(checkcollision);
+			let left  = collision['left'].concat(checkcollision);
+			let right = collision['right'].concat(checkcollision);
+			let up_right   = collision['up'].concat(right);
+			let down_right = collision['down'].concat(right);
+			let left_up    = collision['up'].concat(left);
+			let left_down  = collision['down'].concat(left);		
+
+			this.receiveAttack(collision['attack'], char);
 
 			let attack = false;
 			let char_block = char.currentBlock();
-			let in_defense = defense.includes(char_block) || area.includes(char_block);
+			let in_defense = this.defense.includes(char_block) || this.area.includes(char_block);
 
 			// Defense area
 			if(in_defense){
 
 				if(this.axisY > char.axisY){
-					dir = 'up'
+					dir = 'up';
+					checkcollision = up;
 				}
 
 				if(this.axisY < char.axisY){
-					dir = 'down'
+					dir = 'down';
+					checkcollision = down;
 				}
 
 				if(this.axisX > char.axisX){
-					dir = 'left'
+					dir = 'left';
+					checkcollision = left;
 				}
 
 				if(this.axisX < char.axisX){
-					dir = 'right'
+					dir = 'right';
+					checkcollision = right;
 				}
 
 				goto = this.validNextPosition(dir);
 
-				if( (area.includes(goto) || defense.includes(goto)) && !( collision[dir].includes(goto) ) && char_block != goto ){										
+				if( (this.area.includes(goto) || this.defense.includes(goto)) && !( checkcollision.includes(goto) ) ){										
 					
 					this.moveTo(dir);
-
-					collision = this.whenAttack(char, collision);
 				}
 				else{				
 					this.backHabitat(collision);
 				}
+
+				this.whenAttack(char);
 			}
 			else{
 
 				var dir = direct[Math.floor( Math.random() * direct.length )];
 				var goto = this.validNextPosition(dir);
 
-				if( area.includes(goto) && !( collision[dir].includes(goto) ) ){
+				if( this.area.includes(goto) && !( collision[dir].includes(goto) ) ){
 					this.moveTo(dir);
 				}
 				else{
 					this.backHabitat(collision);
 				}
+
 			}
+
+			collision['busy'].push(char.currentBlock());
+			collision['busy'].push(this.currentBlock());
 		}
 		else{
-			collision['attack'] = [];
+			// Esse cooldown vai funcionar para monstros em outros mapa
+			// só quando tiver online, pq se não vai ter q ficar
+			// calculando a existencia de todos o tempo todo
+			// console.log(this.respaw_cooldown);
+
+			this.respaw_cooldown--;
+
+			if(this.respaw_cooldown == 0){
+				this.respawCreature();			
+			}
 		}
 		
 		return collision;
@@ -176,12 +195,11 @@ export default class Monster extends Creature{
 		}
 	}
 
-	whenAttack(char, collision){
+	whenAttack(char){
 
 		let attack = this.configureAttack(char);
 
 		if(attack.length){
-
 			attack.forEach(function(obj){
 				let block = document.getElementById("block"+obj);
 					block.className += ' attack';
@@ -190,17 +208,13 @@ export default class Monster extends Creature{
 						block.classList.remove('attack');
 					}, 100);
 			});
-
-			collision['attack'] = attack;
 		}	
-
-		return collision;
 	}
 
 	configureAttack(char){
 
 		let find = true;
-		let attacks = [(this.axisY * this.prop) + this.axisX];
+		let attacks = [this.currentBlock()];
 
 		if(this.axisY-1 > char.axisY){
 			find = false;
@@ -218,26 +232,27 @@ export default class Monster extends Creature{
 			find = false;
 		}
 
-		if(find && attack_cooldown){
+		if(find && this.attack_cooldown){
 
 			let chance = Math.floor(Math.random() * (800 - (800 * 4))) + 800 * 4;
 
-			attacks.push( (char.axisY * prop) + char.axisX );
-			attacks = char.receiveAttack(attacks, this);
+			attacks.push( char.currentBlock() );
+			char.receiveAttack(attacks, this);
 
-			attack_cooldown = false;
+			this.attack_cooldown = false;
 
 			setTimeout(function(){
-				attack_cooldown = true;
-			}, chance);
-
-			return attacks;
+				this.attack_cooldown = true;
+			}.bind(this), chance);
 		}
 
 		return find;
 	}	
 
 	respawCreature(){
+
+		let creature = document.getElementById(this.id);
+			creature.classList.remove('dead');
 
 		this.hurt  = this.life;
 		this.alive = true;
@@ -247,21 +262,5 @@ export default class Monster extends Creature{
 			current = (this.hurt * 100) / this.life;
 
 		health.style.width = current + '%';
-	}
-
-	finishCreature(){
-
-		this.alive = false;
-		var that = this;
-
-		let creature = document.getElementById(this.id);
-			creature.classList.add('dead');
-
-		setTimeout(function(){
-			let creature = document.getElementById(that.id);
-				creature.classList.remove('dead');
-
-			that.respawCreature();
-		}, 5000);
 	}
 }

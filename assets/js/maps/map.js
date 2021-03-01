@@ -1,23 +1,72 @@
-import Object from "../elements/object.js";
+import Monster from "../elements/monster.js";
+import Objects from "../elements/objects.js";
+import Door from "../elements/door.js";
 
-let objects = [];
+import world from "./autoloadmap.js";
 
 export default class Maps{
 
-	constructMap(level){
+	constructMap(map){
 
-		let box1 = new Object();
-		box1.create(0, 0, 6, 2);
-		objects.push(box1);
+		this.world = world(map);
+		this.map = map;
+		this.monsters = false;
+	}
 
-		let box2 = new Object();
-		box2.create(6, 8, 2, 6);
-		objects.push(box2);
+	placesMap(){
 
-		let box3 = new Object();
-		box3.create(10, 30, 5, 2);
-		objects.push(box3);
+		let world = this.world['blocks'];
+		let blocks = [];
 
-		return objects;
+		Object.keys(world).forEach(function(key){
+			let config = world[key];
+			let block = new Objects();
+			block.create(config);
+			blocks.push(block);
+		});
+
+		this.blocks = blocks;
+
+		return blocks;
+	}	
+
+	doorsMap(){
+
+		let world = this.world['doors'];
+		let doors = [];
+
+		Object.keys(world).forEach(function(key){
+			let config = world[key];
+			let door = new Door();
+			door.setDoor(config);
+			doors.push(door);
+		});
+
+		this.doors = doors;
+
+		return doors;
+	}
+
+	getMonsters(){
+
+		if(this.monsters == false){
+			let world = this.world['monsters'];
+			let monsters = [];
+
+			Object.keys(world).forEach(function(key){
+				let config = world[key];
+				let monster = new Monster();
+				monster.create(config);
+				monsters.push(monster);
+			});
+
+			this.monsters = monsters;
+		}
+
+		return this.monsters;
+	}
+
+	setMonsters(monsters){
+		this.monsters = monsters;
 	}
 }

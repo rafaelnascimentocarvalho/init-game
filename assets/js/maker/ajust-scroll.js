@@ -30,28 +30,31 @@ export default class Scroll{
 		let limit_right  = left + (width - margin);
 		let limit_bottom = top + (height - margin);
 
+		let goY = char_top  - height;
+		let goX = char_left - width;
+
 		if(direct == 'up' && char_top < limit_top){
 			let go_to = top - height + (margin * 2);
 
-			this.goTo('up', go_to);
+			this.goTo('y', go_to);			
 		}
 
 		if(direct == 'left' && char_left < limit_left){
 			let go_to = left - width - (margin * 2);			
 
-			this.goTo('left', go_to);
+			this.goTo('x', go_to);			
 		}
 
 		if(direct == 'right' && char_right > limit_right){
 			let go_to = left + width - (margin * 2);						
 
-			this.goTo('right', go_to);
+			this.goTo('x', go_to);			
 		}
 
 		if(direct == 'down' && char_bottom > limit_bottom){
 			let go_to = top + height - (margin * 2);			
 
-			this.goTo('down', go_to);
+			this.goTo('y', go_to);			
 		}
 	}
 
@@ -59,9 +62,7 @@ export default class Scroll{
 
 		if(scrolling){
 
-			let doc = document.documentElement;				
-
-			scrollTo(doc, go, direct);
+			scrollTo(go, direct);
 
 			scrolling = false;
 
@@ -70,13 +71,33 @@ export default class Scroll{
 			}, 500);
 		}
 	}
+
+	ajustScreen(char){
+
+		let doc = document.documentElement;
+
+		let width  = window.innerWidth / 2;
+		let height = window.innerHeight / 2;
+
+		let axisY = char.axisY * char.prop;
+		let axisX = char.axisX * char.prop;
+
+		let goY = axisY - height;
+		let goX = axisX - width;
+
+		setTimeout(function(){
+			doc.scrollTop  = goY;
+			doc.scrollLeft = goX;
+		}, 350);
+	}
 }
 
-
-function scrollTo(element, to, direct) {
+function scrollTo(to, direct) {
+	
+	let element = document.documentElement;
 
 	let duration = 200;
-    let start = (direct == 'up' || direct == 'down') ? element.scrollTop : element.scrollLeft;
+    let start = (direct == 'y') ? element.scrollTop : element.scrollLeft;
     let change = to - start;
 
     let currentTime = 0;
@@ -86,7 +107,7 @@ function scrollTo(element, to, direct) {
         currentTime += increment;
         let val = Math.easeInOutQuad(currentTime, start, change, duration);
         
-        if(direct == 'up' || direct == 'down'){
+        if(direct == 'y'){
         	element.scrollTop = val;
         }
         else{

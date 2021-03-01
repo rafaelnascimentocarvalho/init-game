@@ -1,8 +1,14 @@
 let prop = 50;
 
-export default class Object{		
+export default class Objects{
 
-	create(axisY, axisX, width, height, ClassName){		
+	create(params){
+
+		let axisY = params.axisY;
+		let axisX = params.axisX;
+		let width = params.width;
+		let height = params.height;
+		let ClassName = params.ClassName;
 
 		let element = document.createElement("div");
 
@@ -25,32 +31,6 @@ export default class Object{
 		this.element = element;
 
 		return this;
-	}
-
-	moveTo(keyState, velocity){		
-
-		if(keyState["87"]){
-			this.axisY += velocity;
-		}
-
-		if(keyState["83"]){
-			this.axisY -= velocity;
-		}
-
-		if(keyState["65"]){
-			this.axisX += velocity;
-		}
-
-		if(keyState["68"]){
-			this.axisX -= velocity;
-		}
-
-		this.element.style.top  = prop * this.axisY + "px";
-		this.element.style.left = prop * this.axisX + "px";
-	}
-
-	getInfo(){
-		return this.element.getBoundingClientRect();
 	}
 
 	getCollision(direct){

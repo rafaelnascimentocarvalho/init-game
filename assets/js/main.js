@@ -1,18 +1,17 @@
-import Mechanic from "./maker/mechanics.js";
 import Draw from "./maker/draw.js";
-import Map from "./maps/map.js";
 
 let prop = 50;
+
 
 let main = document.getElementById("main");
 	main.style.width  = (prop * prop) + "px";
 	main.style.height = (prop * prop) + "px";
 
-let mechanic  = new Mechanic();
-let draw      = new Draw();
-let map = new Map();
+let data = [];
+let draw = new Draw();
 
-draw.setMap( map.constructMap('level1') );
+let map = 'map2';
+draw.renderMap( map );
 
 let keyState = {'16': false, '87': false, '83': false, '65': false, '68': false};
 
@@ -29,7 +28,7 @@ function keyup(e){
 
 function gameLoop() {
 
-	draw.update(keyState);
+	data = draw.update(keyState);
     setTimeout(gameLoop, 10);
 }
 

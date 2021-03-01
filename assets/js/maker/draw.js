@@ -1,8 +1,11 @@
-import Monster from "../elements/monster.js";
 import Char from "../elements/char.js";
+import Map from "../maps/map.js";
 
+let start = false;
 let char = new Char();
-let monster = new Monster();
+let monsters = [];
+
+let loaded_maps = {};
 
 let prop = 50;
 let objects = [];
@@ -11,35 +14,51 @@ let main = document.getElementById("main");
 
 export default class Draw{
 
-	setMap(items){
+	renderMap(map){
 
-		objects = items;
+		main.classList.add('change-map');
 
-		let blocks = '';
+		let maps = new Map();
 
-		let x = 0;
+		collision['map'] = map;
+		this.map = map;
+
+		if(loaded_maps[map] == undefined){
+			maps.constructMap(map);
+			let setMap = {map: maps};
+			loaded_maps[map] = maps;
+		}else{
+			maps = loaded_maps[map];
+		}
+
+		let blocks_render = '';
+
 		let y = 0;
+		let x = 0;
+
 		for (let i = 0; i < prop*prop; i++) {
 
-			blocks += '<div id="block'+i+'" class="floor"> '+i+'<br>y:'+y+'<br>x:'+x+' </div>';
+			blocks_render += '<div id="block'+i+'" class="floor"> '+i+'<br>y:'+y+' <br>x:'+x+'</div>';
 
-			if(y < (prop-1)){
-				y++;	
-			}	
+			if(x < (prop-1)){
+				x++;	
+			}
 			else{
-				y = 0;
-				x++;
+				x = 0;
+				y++;
 			}	
 		}
 
-		main.innerHTML = blocks;
+		main.innerHTML = blocks_render;
 
+		let blocks = maps.placesMap();
+		
 		let up = [];
 		let left = [];
 		let right = [];
 		let down = [];
 
-		items.forEach((object) => {
+		blocks.forEach((object) => {
 
 			up = up.concat(object.getCollision('up'));
 			left = left.concat(object.getCollision('left'));
@@ -53,23 +72,66 @@ export default class Draw{
 		collision['left']  = left;
 		collision['right'] = right;
 		collision['down']  = down;
+
+		let doors = maps.doorsMap();
+
+		let goto = [];
+		let passes = [];
+
+		doors.forEach((door) => {
+
+			goto = goto.concat(door.getCollision('up'));
+			goto = goto.concat(door.getCollision('left'));
+			goto = goto.concat(door.getCollision('right'));
+			goto = goto.concat(door.getCollision('down'));
+
+			goto.forEach((go) => {
+				passes[go] = door;
+			});
+
+			main.appendChild(door.element);
+		});
+
+		collision['doors'] = {doors: goto, passes: passes};
+
 		collision['attack'] = [];
+		collision['busy'] = [];
 
-		let creatures = [
-				char.create(),
-				monster.create()
-			];
+		if(!start){
+			char.create();
+		}
 
-		creatures.forEach((creature) => {
+		main.appendChild( char.loadCreature() );
+
+		monsters = maps.getMonsters();
+		monsters.forEach((creature) => {
 			main.appendChild( creature.loadCreature() );
 		});
+
+		start = true;
+
+		setTimeout(function(){
+			main.classList.remove('change-map');
+		}, 350);
 	}
 
 	update(keyState){
 
-		collision['busy'] = [];
+		let data = [];
 
-		collision = monster.existence(char, collision);
+		monsters.forEach((monster) => {
+			collision = monster.existence(char, collision);
+		});
+
 		collision = char.mechanics(keyState, collision);
+
+		loaded_maps[this.map].setMonsters(monsters);
+
+		if(collision['map'] != this.map){
+			this.renderMap(collision['map']);
+			char.ajustScreen();
+		}
+
+		return data;
 	}
 }
