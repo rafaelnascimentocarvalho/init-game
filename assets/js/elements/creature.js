@@ -60,12 +60,12 @@ export default class Creature{
 					block.className += ' area';
 			});
 			// ---
-
-			this.element.style.top  = this.prop * this.axisY + "px";
-			this.element.style.left = this.prop * this.axisX + "px";
 		}
 
 		let current = (this.hurt * 100) / this.life;
+
+		this.element.style.top  = this.prop * this.axisY + "px";
+		this.element.style.left = this.prop * this.axisX + "px";
 		this.element.innerHTML  = '<div class="life"><span style="width: '+current+'%"></span></div>';
 
 		return this.element;
