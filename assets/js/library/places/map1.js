@@ -1,7 +1,7 @@
 import handle from "../monsters/handle.js";
 
 let monsters = {
-  handle: handle(5, 25),
+  handle1: handle('handle1', 25, 25)
 }
 
 let blocks = {
