@@ -1,19 +1,9 @@
+import handle from "../monsters/handle.js";
+
 let monsters = {
-  monster1: {
-    id: 'monster1',
-    axisY: 25,
-    axisX: 25
-  },
-   monster2: {
-    id: 'monster2',
-    axisY: 10,
-    axisX: 25
-  },
-   monster3: {
-    id: 'monster3',
-    axisY: 25,
-    axisX: 10
-  }
+  handle1: handle('handle1', 25, 25),
+  handle2: handle('handle2', 10, 25),
+  handle3: handle('handle3', 25, 10),
 }
 
 let blocks = {

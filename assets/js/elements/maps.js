@@ -50,6 +50,7 @@ export default class Maps{
 	getMonsters(){
 
 		if(this.monsters == false){
+
 			let world = this.world['monsters'];
 			let monsters = [];
 

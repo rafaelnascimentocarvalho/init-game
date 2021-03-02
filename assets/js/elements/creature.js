@@ -276,8 +276,6 @@ export default class Creature{
 
 				if(attacks.indexOf(this.currentBlock()) > -1){
 
-					console.log(creature.id);
-
 					let id = this.id;
 
 					// if(id == 'char'){
@@ -325,8 +323,6 @@ export default class Creature{
 
 		if(this.hurt <= 0){
 
-			this.dropItems();
-
 			let creature = document.getElementById(this.id);
 				creature.classList.add('dead');
 
@@ -361,7 +357,72 @@ export default class Creature{
 		this.axisX   = params.axisX;
 	}
 
-	dropItems(){		
-		console.log('drop');
+	dropItems(){
+
+		let items = {};
+
+		let down = (((this.axisY + this.height) * this.prop) + this.axisX).toString();
+		let up = (((this.axisY - 1) * this.prop) + this.axisX).toString();
+		let right = (((this.axisY * this.prop) + this.axisX) + 1).toString();
+		let left = (((this.axisY * this.prop) + this.axisX) - 1).toString();
+		let up_right = (((this.axisY - 1) * this.prop) + this.axisX + 1).toString();
+		let down_right = (((this.axisY + 1) * this.prop) + this.axisX + 1).toString();
+		let left_up = (((this.axisY - 1) * this.prop) + this.axisX - 1).toString();
+		let left_down = (((this.axisY + 1) * this.prop) + this.axisX - 1).toString();
+
+		let blocks = [ down, up, right, up_right, down_right, left_up, left_down, left ];
+
+		let loot = this.loot;
+
+		Object.keys(loot).forEach(function(drop){
+			Object.keys(loot[drop]).forEach(function(obj){
+
+				let chance = false;
+
+				if(drop == 'default'){
+					chance = true;
+				}
+
+				if(drop == 'common'){
+					chance = Math.floor( Math.random() * (0 - 50) ) + 50;
+					chance = (chance < 25) ? true : false;
+				}
+
+				if(drop == 'rare'){
+					chance = Math.floor( Math.random() * (0 - 100) ) + 100;
+					chance = (chance < 10) ? true : false;
+				}				
+
+				if(drop == 'veryrare'){
+					chance = Math.floor( Math.random() * (0 - 100) ) + 100;
+					chance = (chance < 10) ? true : false;
+				}
+
+				if(chance){
+					let item = loot[drop][obj];
+
+					if(item.min != undefined){
+						let qtd  = Math.floor( Math.random() * (item.min - item.max) ) + item.max;
+
+						item = '{"'+obj+'": '+qtd+'}';
+						item = JSON.parse(item);
+
+						let pos = Math.floor( Math.random() * (0 - blocks.length) ) + blocks.length;
+
+						items[ blocks[pos] ] = item;
+
+						blocks.slice(1, pos);
+					}
+				}
+			});
+		});
+
+		console.log(items);
+
+		// padrão: 1 a 2  = 1
+		// comum: 1 a 10 < 50
+		// raro: 1 a 100 < 10
+		// rarissimo: 1 a 1000 < 50
+
 	}
 }

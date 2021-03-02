@@ -1,9 +1,6 @@
 import Creature from "../elements/creature.js";
 
 let prop   = 50;
-let width  = 1;
-let height = 1;
-
 let direct = ['up', 'down', 'right', 'left'];
 
 export default class Monster extends Creature{
@@ -11,26 +8,29 @@ export default class Monster extends Creature{
 	constructor(){
 		super();
 		this.alive = true;
-		this.life = 10;
-		this.habitat = 4;
-		this.respaw = 1000;
-		this.hurt = this.life;
-		this.attack_cooldown = true;
-		this.respaw_cooldown = this.respaw;
 	}
 
 	create(params){
+
+		this.life    = params.life;
+		this.habitat = params.habitat;
+		this.respaw  = params.respaw;
+		this.width   = params.width;
+		this.height  = params.height;
+		this.loot    = params.loot;
+
+		this.hurt = this.life;
+		this.attack_cooldown = true;
+		this.respaw_cooldown = this.respaw;
 
 		this.id   = params.id;
 		let axisY = params.axisY;
 		let axisX = params.axisX;
 
 		this.type    = 'monster';
-		this.respaw  = {axisY: axisY, axisX: axisX};
-		this.axisY   = axisY;
-		this.axisX   = axisX;
-		this.width   = width;
-		this.height  = height;
+		this.axisY   = params.axisY;
+		this.axisX   = params.axisX;
+		this.position = {axisY: params.axisY, axisX: params.axisX};
 
 		var element = document.createElement("div");
 
@@ -47,7 +47,7 @@ export default class Monster extends Creature{
 			let defense = [];
 
 			// Define respaw area
-			let first = ((this.respaw.axisY - this.habitat) * this.prop) + (this.respaw.axisX - this.habitat);
+			let first = ((this.position.axisY - this.habitat) * this.prop) + (this.position.axisX - this.habitat);
 
 			for (let y = 0; y < this.habitat * 2; y++) {
 				area = [...area, first];
@@ -58,7 +58,7 @@ export default class Monster extends Creature{
 				first = first + this.prop;
 			}
 
-			first = ((this.respaw.axisY - (this.habitat + 4)) * this.prop) + (this.respaw.axisX - (this.habitat + 4));
+			first = ((this.position.axisY - (this.habitat + 4)) * this.prop) + (this.position.axisX - (this.habitat + 4));
 
 			for (let y = 0; y < this.habitat * 4; y++) {
 				defense = (first > 0) ? [...defense, first] : [];
@@ -153,6 +153,10 @@ export default class Monster extends Creature{
 			collision['busy'].push(this.currentBlock());
 		}
 		else{
+
+			if(this.respaw_cooldown == this.respaw){
+				collision['drop'] = this.dropItems();
+			}
 			// Esse cooldown vai funcionar para monstros em outros mapa
 			// só quando tiver online, pq se não vai ter q ficar
 			// calculando a existencia de todos o tempo todo
@@ -172,19 +176,19 @@ export default class Monster extends Creature{
 
 		var dir = '';
 
-		if(this.axisY > this.respaw.axisY){
+		if(this.axisY > this.position.axisY){
 			dir = 'up'
 		}
 
-		if(this.axisY < this.respaw.axisY){
+		if(this.axisY < this.position.axisY){
 			dir = 'down'
 		}
 
-		if(this.axisX > this.respaw.axisX){
+		if(this.axisX > this.position.axisX){
 			dir = 'left'
 		}
 
-		if(this.axisX < this.respaw.axisX){
+		if(this.axisX < this.position.axisX){
 			dir = 'right'
 		}
 
@@ -254,6 +258,7 @@ export default class Monster extends Creature{
 		let creature = document.getElementById(this.id);
 			creature.classList.remove('dead');
 
+		this.respaw_cooldown = this.respaw
 		this.hurt  = this.life;
 		this.alive = true;
 
