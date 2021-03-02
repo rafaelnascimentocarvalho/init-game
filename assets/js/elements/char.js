@@ -14,6 +14,7 @@ export default class Char extends Creature{
 
 		this.id = 'char';
 		this.life = 70;
+		this.mana = 70;
 		this.hurt = this.life;
 	}
 
@@ -36,6 +37,7 @@ export default class Char extends Creature{
 		element.style.top    = this.prop * this.axisY + "px";
 		element.style.left   = this.prop * this.axisX + "px";
 		element.className = 'creature char';
+
 		this.element = element;
 
 		return this;
@@ -158,6 +160,9 @@ export default class Char extends Creature{
 		}	
 		
 		return false;	
+	}
+
+	useItem(){
 	}
 
 	whenAttack(keyState){

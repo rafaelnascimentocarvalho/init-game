@@ -60,12 +60,12 @@ export default class Creature{
 					block.className += ' area';
 			});
 			// ---
+
+			this.element.style.top  = this.prop * this.axisY + "px";
+			this.element.style.left = this.prop * this.axisX + "px";
 		}
 
 		let current = (this.hurt * 100) / this.life;
-
-		this.element.style.top  = this.prop * this.axisY + "px";
-		this.element.style.left = this.prop * this.axisX + "px";
 		this.element.innerHTML  = '<div class="life"><span style="width: '+current+'%"></span></div>';
 
 		return this.element;
@@ -325,8 +325,28 @@ export default class Creature{
 
 		if(this.hurt <= 0){
 
+			this.dropItems();
+
 			let creature = document.getElementById(this.id);
 				creature.classList.add('dead');
+
+			this.alive = false;
+		}
+	}
+
+	addHealth(sumhealth){
+
+		if(this.hurt < this.life){
+
+			sumhealth = (sumhealth + this.hurt > this.life) ? this.life - this.hurt : sumhealth;
+
+			this.hurt += sumhealth;
+
+			let health = document.querySelectorAll('#' + this.id + " .life span")[0];
+			let current = health.style.offsetWidth;
+				current = (this.hurt * 100) / this.life;
+
+			health.style.width = current + '%';
 
 			this.alive = false;
 		}
@@ -339,5 +359,9 @@ export default class Creature{
 	setPosition(params){
 		this.axisY   = params.axisY;
 		this.axisX   = params.axisX;
+	}
+
+	dropItems(){		
+		console.log('drop');
 	}
 }

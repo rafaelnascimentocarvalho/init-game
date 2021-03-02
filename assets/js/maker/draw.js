@@ -1,8 +1,10 @@
 import Char from "../elements/char.js";
-import Map from "../maps/map.js";
+import Inventory from "../elements/inventory.js";
+import Maps from "../elements/maps.js";
 
 let start = false;
 let char = new Char();
+let inventory = new Inventory();
 let monsters = [];
 
 let loaded_maps = {};
@@ -18,7 +20,7 @@ export default class Draw{
 
 		main.classList.add('change-map');
 
-		let maps = new Map();
+		let maps = new Maps();
 
 		collision['map'] = map;
 		this.map = map;
@@ -110,7 +112,7 @@ export default class Draw{
 
 		start = true;
 
-		setTimeout(function(){
+		setTimeout(function(){		
 			main.classList.remove('change-map');
 		}, 350);
 	}
@@ -124,6 +126,8 @@ export default class Draw{
 		});
 
 		collision = char.mechanics(keyState, collision);
+
+		inventory.useItem(keyState, char);
 
 		loaded_maps[this.map].setMonsters(monsters);
 

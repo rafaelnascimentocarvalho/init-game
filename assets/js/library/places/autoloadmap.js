@@ -1,5 +1,5 @@
-import map1 from './places/map1.js';
-import map2 from './places/map2.js';
+import map1 from './map1.js';
+import map2 from './map2.js';
 
 const world = {
   map1: map1,

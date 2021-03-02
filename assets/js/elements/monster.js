@@ -13,9 +13,9 @@ export default class Monster extends Creature{
 		this.alive = true;
 		this.life = 10;
 		this.habitat = 4;
-		this.hurt = this.life;
-		this.attack_cooldown = true;		
 		this.respaw = 1000;
+		this.hurt = this.life;
+		this.attack_cooldown = true;
 		this.respaw_cooldown = this.respaw;
 	}
 

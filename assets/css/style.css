@@ -7,9 +7,10 @@ html{
 }
 
 main{
+	position: absolute;
 	overflow: hidden;
-	position: relative;
 	background-color: #e1e1e1;
+	transition: left .4s ease, right .4s ease, top .4s ease, bottom .4s ease;
 }
 
 .change-map{
@@ -73,6 +74,7 @@ main{
 .creature.left_down:after{ transform: rotate(135deg); }
 
 .char{
+	position: absolute;
 	background-color: red;
 }
 
@@ -106,4 +108,13 @@ main{
 
 .creature.defense{
 	background-color: white;
+}
+
+.dashboard{
+	top: 2rem;
+	left: 2rem;
+	z-index: 1;
+	padding: 2rem;
+	position: fixed;
+	background-color: #fff;
 }

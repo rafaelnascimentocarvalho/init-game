@@ -1,8 +1,8 @@
-import Monster from "../elements/monster.js";
-import Objects from "../elements/objects.js";
-import Door from "../elements/door.js";
+import Monster from "./monster.js";
+import Objects from "./objects.js";
+import Door from "./door.js";
 
-import world from "./autoloadmap.js";
+import world from "../library/places/autoloadmap.js";
 
 export default class Maps{
 

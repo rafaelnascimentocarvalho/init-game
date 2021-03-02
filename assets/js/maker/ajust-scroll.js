@@ -7,6 +7,8 @@ export default class Scroll{
 
 		let doc = document.documentElement;
 
+		let prop = 50;
+
 		let docY = doc.scrollTop;
 		let docX = doc.scrollLeft;
 
@@ -24,7 +26,7 @@ export default class Scroll{
 		let char_bottom = char.element.offsetHeight + char_top;
 		let char_right  = char.element.offsetWidth + char_left;
 
-		let margin = height / 5;
+		let margin = prop * 4;
 		let limit_top  = top + margin;
 		let limit_left = left + margin;
 		let limit_right  = left + (width - margin);
@@ -34,25 +36,25 @@ export default class Scroll{
 		let goX = char_left - width;
 
 		if(direct == 'up' && char_top < limit_top){
-			let go_to = top - height + (margin * 2);
+			let go_to = (top - height) + margin;
 
 			this.goTo('y', go_to);			
 		}
 
 		if(direct == 'left' && char_left < limit_left){
-			let go_to = left - width - (margin * 2);			
+			let go_to = (left - width) - margin;			
 
 			this.goTo('x', go_to);			
 		}
 
 		if(direct == 'right' && char_right > limit_right){
-			let go_to = left + width - (margin * 2);						
+			let go_to = (left + width) - margin;						
 
 			this.goTo('x', go_to);			
 		}
 
 		if(direct == 'down' && char_bottom > limit_bottom){
-			let go_to = top + height - (margin * 2);			
+			let go_to = (top + height) - margin;
 
 			this.goTo('y', go_to);			
 		}
