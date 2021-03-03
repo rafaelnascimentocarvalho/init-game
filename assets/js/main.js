@@ -2,7 +2,6 @@ import Draw from "./maker/draw.js";
 
 let prop = 50;
 
-
 let main = document.getElementById("main");
 	main.style.width  = (prop * prop) + "px";
 	main.style.height = (prop * prop) + "px";

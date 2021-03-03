@@ -1,6 +1,8 @@
+import Inventory from "./inventory.js";
+
 export default class Creature{
 
-	constructor() {
+	constructor(){
 		this.prop = 50;
 		this.focus = 'down';
 

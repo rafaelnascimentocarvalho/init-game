@@ -1,7 +1,10 @@
 import Scroll from "../maker/ajust-scroll.js";
+import Inventory from "../elements/inventory.js";
 import Creature from "../elements/creature.js";
 
+let inventory = new Inventory();
 let scroll = new Scroll();
+
 let width  = 1;
 let height = 1;
 let walking = true;
@@ -162,7 +165,8 @@ export default class Char extends Creature{
 		return false;	
 	}
 
-	useItem(){
+	useItem(keyState){
+		inventory.useItem(keyState, this);
 	}
 
 	whenAttack(keyState){

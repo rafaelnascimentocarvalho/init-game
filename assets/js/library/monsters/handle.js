@@ -27,9 +27,9 @@ export default function(id, axisY, axisX){
 			rare: {},
 			veryrare: {},
 		},
-	    id: id,
-	    axisY: axisY,
-	    axisX: axisX
+		id: id,
+		axisY: axisY,
+		axisX: axisX
 	};
 }
 

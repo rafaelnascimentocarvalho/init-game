@@ -47,7 +47,14 @@ main{
 	background-color: #45cfff;	
 }
 
+.item{
+	z-index: 0;
+	position: absolute;
+	background-color: #f724ff;
+}
+
 .creature{
+	z-index: 1;
 	position: absolute;
 	transition: left .4s ease, right .4s ease, top .4s ease, bottom .4s ease;
 }

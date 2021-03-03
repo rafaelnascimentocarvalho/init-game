@@ -1,11 +1,12 @@
 import Char from "../elements/char.js";
-import Inventory from "../elements/inventory.js";
+import Items from "../elements/items.js";
 import Maps from "../elements/maps.js";
 
 let start = false;
-let char = new Char();
-let inventory = new Inventory();
-let monsters = [];
+
+let char  = new Char();
+let monsters  = [];
+let drop = [];
 
 let loaded_maps = {};
 
@@ -97,18 +98,23 @@ export default class Draw{
 		collision['doors'] = {doors: goto, passes: passes};
 
 		collision['attack'] = [];
-		collision['busy'] = [];
+		collision['busy']   = [];
 
-		if(!start){
-			char.create();
-		}
-
+		if(!start) char.create();
 		main.appendChild( char.loadCreature() );
 
 		monsters = maps.getMonsters();
 		monsters.forEach((creature) => {
 			main.appendChild( creature.loadCreature() );
 		});
+
+		// items drop
+		drop = maps.getDrop();
+		Object.keys(drop).forEach((item) => {
+			main.appendChild( drop[item].element );
+		});
+		collision['drop'] = drop;
+		// --
 
 		start = true;
 
@@ -127,7 +133,26 @@ export default class Draw{
 
 		collision = char.mechanics(keyState, collision);
 
-		inventory.useItem(keyState, char);
+		// Gerando loot de drop no chão
+		let checkdrop = collision['drop'];
+		Object.keys(checkdrop).forEach((block, key) => {
+			if(checkdrop[block].dropped == undefined){
+
+				let item = new Items();
+					item.dropItem(checkdrop[block], block);
+
+				main.appendChild( item.element );
+
+				console.log(item);
+
+				checkdrop[block] = item;
+			}
+		});
+		loaded_maps[this.map].setDrop(checkdrop);
+		collision['drop'] = checkdrop;
+		// ---
+
+		char.useItem(keyState);
 
 		loaded_maps[this.map].setMonsters(monsters);
 

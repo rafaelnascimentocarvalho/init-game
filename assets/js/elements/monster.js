@@ -1,4 +1,7 @@
 import Creature from "../elements/creature.js";
+import Inventory from "../elements/inventory.js";
+
+let inventory = new Inventory();
 
 let prop   = 50;
 let direct = ['up', 'down', 'right', 'left'];
@@ -153,9 +156,11 @@ export default class Monster extends Creature{
 			collision['busy'].push(this.currentBlock());
 		}
 		else{
+			
+			let checkdrop = collision['drop'];
 
 			if(this.respaw_cooldown == this.respaw){
-				collision['drop'] = this.dropItems();
+				collision['drop'] = inventory.dropItems(checkdrop, this);				
 			}
 			// Esse cooldown vai funcionar para monstros em outros mapa
 			// só quando tiver online, pq se não vai ter q ficar
@@ -269,66 +274,4 @@ export default class Monster extends Creature{
 		health.style.width = current + '%';
 	}
 
-	dropItems(){
-
-		let items = {};
-
-		let down = (((this.axisY + this.height) * this.prop) + this.axisX).toString();
-		let up = (((this.axisY - 1) * this.prop) + this.axisX).toString();
-		let right = (((this.axisY * this.prop) + this.axisX) + 1).toString();
-		let left = (((this.axisY * this.prop) + this.axisX) - 1).toString();
-		let up_right = (((this.axisY - 1) * this.prop) + this.axisX + 1).toString();
-		let down_right = (((this.axisY + 1) * this.prop) + this.axisX + 1).toString();
-		let left_up = (((this.axisY - 1) * this.prop) + this.axisX - 1).toString();
-		let left_down = (((this.axisY + 1) * this.prop) + this.axisX - 1).toString();
-
-		let blocks = [ down, up, right, up_right, down_right, left_up, left_down, left ];
-
-		let loot = this.loot;
-
-		Object.keys(loot).forEach(function(drop){
-			Object.keys(loot[drop]).forEach(function(obj){
-
-				let chance = false;
-
-				if(drop == 'default'){
-					chance = true;
-				}
-
-				if(drop == 'common'){
-					chance = Math.floor( Math.random() * (0 - 50) ) + 50;
-					chance = (chance < 25) ? true : false;
-				}
-
-				if(drop == 'rare'){
-					chance = Math.floor( Math.random() * (0 - 100) ) + 100;
-					chance = (chance < 10) ? true : false;
-				}				
-
-				if(drop == 'veryrare'){
-					chance = Math.floor( Math.random() * (0 - 100) ) + 100;
-					chance = (chance < 10) ? true : false;
-				}
-
-				if(chance){
-					let item = loot[drop][obj];
-
-					if(item.min != undefined){
-						let qtd  = Math.floor( Math.random() * (item.min - item.max) ) + item.max;
-
-						item = '{"'+obj+'": '+qtd+'}';
-						item = JSON.parse(item);
-
-						let pos = Math.floor( Math.random() * (0 - blocks.length) ) + blocks.length;
-
-						items[ blocks[pos] ] = item;
-
-						blocks.slice(1, pos);
-					}
-				}
-			});
-		});
-
-		return items;
-	}
 }

@@ -11,6 +11,7 @@ export default class Maps{
 		this.world = world(map);
 		this.map = map;
 		this.monsters = false;
+		this.drop = false;
 	}
 
 	placesMap(){
@@ -28,7 +29,7 @@ export default class Maps{
 		this.blocks = blocks;
 
 		return blocks;
-	}	
+	}
 
 	doorsMap(){
 
@@ -45,6 +46,10 @@ export default class Maps{
 		this.doors = doors;
 
 		return doors;
+	}
+
+	setMonsters(monsters){
+		this.monsters = monsters;
 	}
 
 	getMonsters(){
@@ -67,7 +72,16 @@ export default class Maps{
 		return this.monsters;
 	}
 
-	setMonsters(monsters){
-		this.monsters = monsters;
+	setDrop(drop){
+		this.drop = drop;
+	}
+
+	getDrop(){
+
+		if(this.drop == false){
+			this.drop = {};
+		}
+
+		return this.drop;
 	}
 }
