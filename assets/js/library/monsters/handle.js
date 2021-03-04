@@ -2,7 +2,7 @@ export default function(id, axisY, axisX){
 	return {
 		name: 'Handle',
 		slug: 'handle',
-		life: 1,
+		life: 150,
 		width: 1,
 		height: 1,
 		skills: {
@@ -10,6 +10,7 @@ export default function(id, axisY, axisX){
 			defense: 38
 		},
 		habitat: 4,
+		safearea: 4,
 		respaw: 1000,
 		loot: {
 			default: {

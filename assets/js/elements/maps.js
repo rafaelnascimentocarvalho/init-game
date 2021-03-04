@@ -1,8 +1,12 @@
+import Scroll from "../maker/ajust-scroll.js";
 import Monster from "./monster.js";
+import Char from "./char.js";
 import Objects from "./objects.js";
 import Door from "./door.js";
 
 import world from "../library/places/autoloadmap.js";
+
+let scroll = new Scroll();
 
 export default class Maps{
 
@@ -11,6 +15,7 @@ export default class Maps{
 		this.world = world(map);
 		this.map = map;
 		this.monsters = false;
+		this.chars = false;
 		this.drop = false;
 	}
 
@@ -48,6 +53,30 @@ export default class Maps{
 		return doors;
 	}
 
+	setChars(chars){
+		this.chars = chars;
+	}
+
+	getChars(){
+
+		if(this.chars == false){
+
+			let world = this.world['chars'];
+			let chars = [];
+
+			Object.keys(world).forEach(function(key){
+				let config = world[key];
+				let char = new Char();
+				char.create(config);
+				chars.push(char);
+			});
+
+			this.chars = chars;
+		}
+
+		return this.chars;
+	}
+
 	setMonsters(monsters){
 		this.monsters = monsters;
 	}
@@ -83,5 +112,50 @@ export default class Maps{
 		}
 
 		return this.drop;
+	}
+
+	ajustScreen(creature, keyState){
+
+		if(scroll.onScreen(creature) && keyState){
+
+			if( keyState["87"] ){
+				scroll.ajustScroll('up', creature);			
+			}
+
+			if( keyState["83"] ){
+				scroll.ajustScroll('down', creature);			
+			}
+
+			if( keyState["65"] ){
+				scroll.ajustScroll('left', creature);			
+			}
+
+			if( keyState["68"] ){
+				scroll.ajustScroll('right', creature);						
+			}
+
+			if( keyState["68"] && keyState["87"] ){
+				scroll.ajustScroll('up', creature);
+				scroll.ajustScroll('right', creature);			
+			}
+
+			if( keyState["68"] && keyState["83"] ){
+				scroll.ajustScroll('down', creature);
+				scroll.ajustScroll('right', creature);			
+			}
+
+			if( keyState["65"] && keyState["87"] ){
+				scroll.ajustScroll('left', creature);
+				scroll.ajustScroll('up', creature);			
+			}
+
+			if( keyState["65"] && keyState["83"] ){
+				scroll.ajustScroll('down', creature);
+				scroll.ajustScroll('left', creature);			
+			}
+		}
+		else{
+			scroll.ajustScreen(creature);
+		}
 	}
 }

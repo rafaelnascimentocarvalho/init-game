@@ -17,10 +17,12 @@ export default class Monster extends Creature{
 
 		this.life    = params.life;
 		this.habitat = params.habitat;
+		this.safearea = params.safearea;
 		this.respaw  = params.respaw;
 		this.width   = params.width;
 		this.height  = params.height;
 		this.loot    = params.loot;
+		this.skills  = params.skills;
 
 		this.hurt = this.life;
 		this.attack_cooldown = true;
@@ -42,39 +44,38 @@ export default class Monster extends Creature{
 		element.style.height = (this.height * prop) + "px";
 		element.style.top    = prop * this.axisY + "px";
 		element.style.left   = prop * this.axisX + "px";
+		element.style.zIndex = (prop * this.axisY) + this.axisX;
 		element.className = 'creature monster';			
 		this.element = element;
 
-		if(this.id != 'char'){
-			let area   = [];
-			let defense = [];
+		let area   = [];
+		let defense = [];
 
-			// Define respaw area
-			let first = ((this.position.axisY - this.habitat) * this.prop) + (this.position.axisX - this.habitat);
+		// Define respaw area
+		let first = ((this.position.axisY - this.habitat) * this.prop) + (this.position.axisX - this.habitat);
 
-			for (let y = 0; y < this.habitat * 2; y++) {
-				area = [...area, first];
-				for (let x = 0; x < this.habitat * 2; x++) {
-					let blockX = first + x;
-					area = [...area, blockX];
-				}
-				first = first + this.prop;
+		for (let y = 0; y < this.habitat * 2; y++) {
+			area = [...area, first];
+			for (let x = 0; x < this.habitat * 2; x++) {
+				let blockX = first + x;
+				area = [...area, blockX];
 			}
-
-			first = ((this.position.axisY - (this.habitat + 4)) * this.prop) + (this.position.axisX - (this.habitat + 4));
-
-			for (let y = 0; y < this.habitat * 4; y++) {
-				defense = (first > 0) ? [...defense, first] : [];
-				for (let x = 0; x < this.habitat * 4; x++) {
-					let blockX = first + x;
-					defense = (blockX > 0) ? [...defense, blockX] : [];
-				}
-				first = first + this.prop;
-			}
-
-			this.area    = area;
-			this.defense = defense;
+			first = first + this.prop;
 		}
+
+		first = ((this.position.axisY - (this.safearea + 4)) * this.prop) + (this.position.axisX - (this.safearea + 4));
+
+		for (let y = 0; y < this.safearea * 4; y++) {
+			defense = (first > 0) ? [...defense, first] : [];
+			for (let x = 0; x < this.safearea * 4; x++) {
+				let blockX = first + x;
+				defense = (blockX > 0) ? [...defense, blockX] : [];
+			}
+			first = first + this.prop;
+		}
+
+		this.area    = area;
+		this.defense = defense;
 
 		return this;
 	}

@@ -1,3 +1,4 @@
+import Attack from "../library/attacks/autoloadattacks.js";
 import Inventory from "./inventory.js";
 
 export default class Creature{
@@ -34,6 +35,7 @@ export default class Creature{
 
 			this.element.style.top  = this.prop * this.axisY + "px";
 			this.element.style.left = this.prop * this.axisX + "px";
+			this.element.style.zIndex = (this.prop * this.axisY) + this.axisX;
 
 			this.walking = false;
 
@@ -46,23 +48,6 @@ export default class Creature{
 	}
 
 	loadCreature(){
-
-		if(this.id != 'char'){			
-
-			// --- show respaw/defense area
-			this.defense.forEach(function(obj){
-
-				let block = document.getElementById("block"+obj);
-					block.className += ' defense';
-			});
-
-			this.area.forEach(function(obj){
-
-				let block = document.getElementById("block"+obj);
-					block.className += ' area';
-			});
-			// ---
-		}
 
 		let current = (this.hurt * 100) / this.life;
 
@@ -167,53 +152,19 @@ export default class Creature{
 		return false;
 	}
 
-	getAttack(){
+	getAttack(type){
 
 		let timeout = 400;
 
 		if(this.cooldown){
 
-			let attacks = [(this.axisY * this.prop) + this.axisX];
 			this.cooldown = false;
 
 			setTimeout(function(){
 				this.cooldown = true;
 			}.bind(this), timeout);
 
-			if(this.focus == 'down'){
-				attacks.push( ((this.axisY + this.height) * this.prop) + this.axisX );
-			}
-
-			if(this.focus == 'up'){
-				attacks.push( ((this.axisY - 1) * this.prop) + this.axisX );
-			}
-
-			if(this.focus == 'right'){
-				attacks.push( ((this.axisY * this.prop) + this.axisX) + 1 );
-			}
-
-			if(this.focus == 'left'){
-				attacks.push( ((this.axisY * this.prop) + this.axisX) - 1 );
-			}
-
-			// diagonal
-			if(this.focus == 'up_right'){
-				attacks.push( ((this.axisY - 1) * this.prop) + this.axisX + 1 );
-			}	
-
-			if(this.focus == 'down_right'){
-				attacks.push( (((this.axisY + 1) * this.prop) + this.axisX + 1) );
-			}	
-
-			if(this.focus == 'left_up'){
-				attacks.push( ((this.axisY - 1) * this.prop) + this.axisX - 1 );
-			}
-
-			if(this.focus == 'left_down'){
-				attacks.push( (((this.axisY + 1) * this.prop) + this.axisX - 1) );
-			}
-
-			return attacks;
+			return Attack(this.focus, type, this);
 		}
 
 		return false;
@@ -310,12 +261,29 @@ export default class Creature{
 
 	generateAttack(){
 
-		return 1;
+		let max_hit = this.skills['attack'];
+		let min_hit = (max_hit * 15) / 100;
+
+		let hit = Math.floor( Math.random() * (min_hit - max_hit) ) + max_hit;
+
+		return hit;
 	}
 
 	removeHealth(hurt){
 
+		let max_def = this.skills['defense'];
+		let min_def = (max_def * 15) / 100;
+
+		let def = Math.floor( Math.random() * (min_def - max_def) ) + max_def;
+
+		hurt = (( def - hurt ) > 0) ? def - hurt : 0;
+
 		this.hurt -= hurt;
+
+		if(this.id == 'char'){
+			let dashboard = document.getElementById("health");
+			dashboard.innerHTML = JSON.stringify({ life: this.hurt });
+		}
 
 		let health = document.querySelectorAll('#' + this.id + " .life span")[0];
 		let current = health.style.offsetWidth;
@@ -336,9 +304,14 @@ export default class Creature{
 
 		if(this.hurt < this.life){
 
-			sumhealth = (sumhealth + this.hurt > this.life) ? this.life - this.hurt : sumhealth;
+			sumhealth = ((sumhealth + this.hurt) > this.life) ? this.life - this.hurt : sumhealth;
 
 			this.hurt += sumhealth;
+
+			if(this.id == 'char'){
+				let dashboard = document.getElementById("health");
+				dashboard.innerHTML = JSON.stringify({ life: this.hurt });
+			}
 
 			let health = document.querySelectorAll('#' + this.id + " .life span")[0];
 			let current = health.style.offsetWidth;
@@ -355,7 +328,11 @@ export default class Creature{
 	}
 
 	setPosition(params){
+		this.element.classList.add('goto');
 		this.axisY   = params.axisY;
 		this.axisX   = params.axisX;
+		setTimeout(function(){
+			this.element.classList.remove('goto');
+		}.bind(this), 100);			
 	}
 }

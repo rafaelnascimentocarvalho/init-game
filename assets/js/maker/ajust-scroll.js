@@ -1,25 +1,19 @@
 let main = document.getElementById("main");
 let scrolling = true;
 
+let doc = document.documentElement;
+
 export default class Scroll{
 
 	ajustScroll(direct, char){
 
-		let doc = document.documentElement;
-
 		let prop = 50;
-
-		let docY = doc.scrollTop;
-		let docX = doc.scrollLeft;
 
 		let top  = doc.scrollTop;	
 		let left = doc.scrollLeft;
 
 		let width  = window.innerWidth;
 		let height = window.innerHeight;
-
-		let wWidth  = main.offsetWidth;
-		let wHeight = main.offsetHeight;
 
 		let char_top  = char.element.offsetTop;
 		let char_left = char.element.offsetLeft;		
@@ -32,29 +26,26 @@ export default class Scroll{
 		let limit_right  = left + (width - margin);
 		let limit_bottom = top + (height - margin);
 
-		let goY = char_top  - height;
-		let goX = char_left - width;
-
 		if(direct == 'up' && char_top < limit_top){
-			let go_to = (top - height) + margin;
+			let go_to = (char_bottom - height) + margin;
 
-			this.goTo('y', go_to);			
+			this.goTo('y', go_to);
 		}
 
 		if(direct == 'left' && char_left < limit_left){
-			let go_to = (left - width) - margin;			
+			let go_to = (char_left - width) + margin;			
 
 			this.goTo('x', go_to);			
 		}
 
 		if(direct == 'right' && char_right > limit_right){
-			let go_to = (left + width) - margin;						
+			let go_to = char_right - margin;						
 
 			this.goTo('x', go_to);			
 		}
 
 		if(direct == 'down' && char_bottom > limit_bottom){
-			let go_to = (top + height) - margin;
+			let go_to = char_bottom - margin;
 
 			this.goTo('y', go_to);			
 		}
@@ -76,8 +67,6 @@ export default class Scroll{
 
 	ajustScreen(char){
 
-		let doc = document.documentElement;
-
 		let width  = window.innerWidth / 2;
 		let height = window.innerHeight / 2;
 
@@ -92,14 +81,37 @@ export default class Scroll{
 			doc.scrollLeft = goX;
 		}, 350);
 	}
+
+	onScreen(char){
+
+		let top  = doc.scrollTop;	
+		let left = doc.scrollLeft;
+
+		let width  = window.innerWidth;
+		let height = window.innerHeight;
+
+		let char_top  = char.element.offsetTop;
+		let char_left = char.element.offsetLeft;		
+		let char_bottom = char.element.offsetHeight + char_top;
+		let char_right  = char.element.offsetWidth + char_left;
+
+		let limit_top  = top;
+		let limit_left = left;
+		let limit_right  = left + width;
+		let limit_bottom = top + height;
+
+		if(char_top < limit_top || char_left < limit_left || char_bottom > limit_bottom || char_right > limit_right){
+			return false
+		}
+
+		return true
+	}
 }
 
 function scrollTo(to, direct) {
 	
-	let element = document.documentElement;
-
 	let duration = 200;
-    let start = (direct == 'y') ? element.scrollTop : element.scrollLeft;
+    let start = (direct == 'y') ? doc.scrollTop : doc.scrollLeft;
     let change = to - start;
 
     let currentTime = 0;
@@ -110,10 +122,10 @@ function scrollTo(to, direct) {
         let val = Math.easeInOutQuad(currentTime, start, change, duration);
         
         if(direct == 'y'){
-        	element.scrollTop = val;
+        	doc.scrollTop = val;
         }
         else{
-        	element.scrollLeft = val;        	
+        	doc.scrollLeft = val;        	
         }
 
         if(currentTime < duration) {

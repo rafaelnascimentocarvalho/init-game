@@ -1,9 +1,7 @@
-import Scroll from "../maker/ajust-scroll.js";
 import Inventory from "../elements/inventory.js";
 import Creature from "../elements/creature.js";
 
 let inventory = new Inventory();
-let scroll = new Scroll();
 
 let width  = 1;
 let height = 1;
@@ -16,9 +14,11 @@ export default class Char extends Creature{
 		super();
 
 		this.id = 'char';
-		this.life = 70;
+		this.life = 150;
 		this.mana = 70;
+		this.skills = {attack: 40, defense: 38};
 		this.hurt = this.life;
+		this.inventory = {};
 	}
 
 	create(){
@@ -39,9 +39,16 @@ export default class Char extends Creature{
 		element.style.height = (this.height * this.prop) + "px";
 		element.style.top    = this.prop * this.axisY + "px";
 		element.style.left   = this.prop * this.axisX + "px";
+		element.style.zIndex = (this.prop * this.axisY) + this.axisX;
 		element.className = 'creature char';
 
 		this.element = element;
+
+		let dashboard = document.getElementById("health");
+		dashboard.innerHTML = JSON.stringify({ life: this.hurt });
+
+			dashboard = document.getElementById("inventory");
+		dashboard.innerHTML = JSON.stringify({inventory: this.inventory}, null, 2);
 
 		return this;
 	}
@@ -50,6 +57,7 @@ export default class Char extends Creature{
 
 		let move = false;
 
+		let checkdrop      = collision['drop'];
 		let checkdoors     = collision['doors'];
 		let checkcollision = collision['busy'];
 
@@ -66,47 +74,39 @@ export default class Char extends Creature{
 		let left_down  = [...collision['down'], ...left ];
 
 		if(this.checkPress('up', keyState) && up.indexOf(this.validNextPosition('up')) < 0){
-			scroll.ajustScroll('up', this);
 			move = this.moveChar(keyState);
 		}
 
 		if(this.checkPress('down', keyState) && down.indexOf(this.validNextPosition('down')) < 0){
-			scroll.ajustScroll('down', this);
 			move = this.moveChar(keyState);
 		}
 
 		if(this.checkPress('left', keyState) && left.indexOf(this.validNextPosition('left')) < 0){
-			scroll.ajustScroll('left', this);
 			move = this.moveChar(keyState);
 		}
 
 		if(this.checkPress('right', keyState) && right.indexOf(this.validNextPosition('right')) < 0){
-			scroll.ajustScroll('right', this);			
 			move = this.moveChar(keyState);
 		}
 
 		if(this.checkPress('up_right', keyState) && up_right.indexOf(this.validNextPosition('up_right')) < 0){
-			scroll.ajustScroll('up', this);
-			scroll.ajustScroll('right', this);
 			move = this.moveChar(keyState, true);
 		}
 
 		if(this.checkPress('down_right', keyState) && down_right.indexOf(this.validNextPosition('down_right')) < 0){
-			scroll.ajustScroll('down', this);
-			scroll.ajustScroll('right', this);
 			move = this.moveChar(keyState, true);
 		}
 
 		if(this.checkPress('left_up', keyState) && left_up.indexOf(this.validNextPosition('left_up')) < 0){
-			scroll.ajustScroll('left', this);
-			scroll.ajustScroll('up', this);
 			move = this.moveChar(keyState, true);
 		}
 
 		if(this.checkPress('left_down', keyState) && left_down.indexOf(this.validNextPosition('left_down')) < 0){
-			scroll.ajustScroll('down', this);
-			scroll.ajustScroll('left', this);
 			move = this.moveChar(keyState, true);
+		}
+
+		if(keyState["78"]){
+			collision['drop'] = this.getItem(checkdrop);
 		}
 
 		if(move){
@@ -152,6 +152,7 @@ export default class Char extends Creature{
 
 			this.element.style.top  = this.prop * this.axisY + "px";
 			this.element.style.left = this.prop * this.axisX + "px";
+			this.element.style.zIndex = (this.prop * this.axisY) + this.axisX;
 
 			walking = false;
 
@@ -167,6 +168,38 @@ export default class Char extends Creature{
 
 	useItem(keyState){
 		inventory.useItem(keyState, this);
+
+		let dashboard = document.getElementById("health");
+		dashboard.innerHTML = JSON.stringify({ life: this.hurt });
+
+			dashboard = document.getElementById("inventory");
+		dashboard.innerHTML = JSON.stringify({inventory: this.inventory}, null, 2);
+	}
+
+	getItem(drop){
+
+		let block = this.currentBlock().toString();
+		let pos = Object.keys(drop).indexOf(block);
+
+		if(pos > -1){
+
+			let item = drop[block];
+				item.clearItem();
+
+			delete drop[block];	
+
+			if(Object.keys(this.inventory).indexOf(item.name) > -1){
+				this.inventory[item.name] += item.quantity;
+			}
+			else{
+				this.inventory[item.name] = item.quantity;
+			}
+
+			let dashboard = document.getElementById("inventory");
+			dashboard.innerHTML = JSON.stringify({inventory: this.inventory}, null, 2);
+		}
+
+		return drop;
 	}
 
 	whenAttack(keyState){
@@ -177,7 +210,7 @@ export default class Char extends Creature{
 
 			if(keyState["75"]){
 
-				attacks = this.getAttack();
+				attacks = this.getAttack('simple');
 
 				if(attacks.length){
 
@@ -205,9 +238,5 @@ export default class Char extends Creature{
 	finishCreature(){
 		alert('oloco véi, vc perdeu... ruim em... caraca');
 		document.location.reload(true);
-	}
-
-	ajustScreen(){
-		scroll.ajustScreen(this);
 	}
 }

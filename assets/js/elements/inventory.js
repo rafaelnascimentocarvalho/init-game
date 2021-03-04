@@ -1,5 +1,7 @@
-let hotkeys  = {'79': 'health', '80': 'mana'};
-let keyState = {'health': false, 'mana': false};
+import Items from "../library/items/autoloaditems.js";
+
+let hotkeys  = {'79': 'healthpotion', '80': 'manapotion'};
+let keyState = {'healthpotion': false, 'manapotion': false};
 
 let health_cooldown = true;
 let mana_cooldown = true;
@@ -9,11 +11,21 @@ export default class Inventory{
 	useItem(keyState, char){
 
 		if(keyState['79'] && health_cooldown){
-			char.addHealth(10);
-			health_cooldown = false;
-			setTimeout(function(){
-				health_cooldown = true;
-			}, 1000);
+			if(char.inventory['health'] != undefined){
+
+				let health = char.inventory['health'];
+				let healthpotion = Items('healthpotion');
+
+				if(health > 0 && char.hurt < char.life){
+					char.addHealth(healthpotion['life']);
+					char.inventory['health']--;
+
+					health_cooldown = false;
+					setTimeout(function(){
+						health_cooldown = true;
+					}, 1000);
+				}
+			}
 		}
 
 		if(keyState['80'] && mana_cooldown){

@@ -1,7 +1,7 @@
-import handle from "../monsters/handle.js";
+import monster from "../monsters/autoloadmonsters.js";
 
 let monsters = {
-  handle1: handle('handle1', 25, 25)
+  handle1: monster('handle', 'handle1', 25, 25)
 }
 
 let blocks = {
@@ -44,6 +44,7 @@ let doors = {
 }
 
 export default {
+  name: 'map1',
   monsters: monsters,
   blocks: blocks,
   doors: doors

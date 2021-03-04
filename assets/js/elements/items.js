@@ -34,4 +34,9 @@ export default class Items{
 
 		return this;
 	}
+
+	clearItem(){
+		var item = document.getElementById(this.id);
+		item.remove();
+	}
 }
